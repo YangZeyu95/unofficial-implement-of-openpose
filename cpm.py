@@ -15,60 +15,60 @@ class CpmStage1:
         self.hm_channel_num = hm_channel_num
 
     def stage_1(self, inputs, out_channel_num):
-        with tf.name_scope("conv1_stage1"):
-            net = tf.layers.conv2d(inputs=inputs,
-                                   filters=128,
-                                   padding="same",
-                                   kernel_size=3,
-                                   activation="relu",
-                                   bias_initializer=tf.random_normal_initializer())
+    # with tf.name_scope("conv1_stage1"):
+        net = tf.layers.conv2d(inputs=inputs,
+                               filters=128,
+                               padding="same",
+                               kernel_size=3,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
 
-        # with tf.name_scope("pool1_stage1"):
-        #     net = tf.layers.max_pooling2d(inputs=net,
-        #                                   pool_size=2,
-        #                                   strides=2)
+    # with tf.name_scope("pool1_stage1"):
+    #     net = tf.layers.max_pooling2d(inputs=net,
+    #                                   pool_size=2,
+    #                                   strides=2)
 
-        with tf.name_scope("conv2_stage1"):
-            net = tf.layers.conv2d(inputs=net,
-                                   filters=128,
-                                   padding="same",
-                                   kernel_size=3,
-                                   activation="relu",
-                                   bias_initializer=tf.random_normal_initializer())
+    # with tf.name_scope("conv2_stage1"):
+        net = tf.layers.conv2d(inputs=net,
+                               filters=128,
+                               padding="same",
+                               kernel_size=3,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
 
-        # with tf.name_scope("pool2_stage1"):
-        #     net = tf.layers.max_pooling2d(inputs=net,
-        #                                   pool_size=2,
-        #                                   strides=2)
+    # with tf.name_scope("pool2_stage1"):
+    #     net = tf.layers.max_pooling2d(inputs=net,
+    #                                   pool_size=2,
+    #                                   strides=2)
 
-        with tf.name_scope("conv3_stage1"):
-            net = tf.layers.conv2d(inputs=net,
-                                   filters=128,
-                                   padding="same",
-                                   kernel_size=3,
-                                   activation="relu",
-                                   bias_initializer=tf.random_normal_initializer())
+    # with tf.name_scope("conv3_stage1"):
+        net = tf.layers.conv2d(inputs=net,
+                               filters=128,
+                               padding="same",
+                               kernel_size=3,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
 
-        # with tf.name_scope("pool3_stage1"):
-        #     net = tf.layers.max_pooling2d(inputs=net,
-        #                                   pool_size=2,
-        #                                   strides=2)
+    # with tf.name_scope("pool3_stage1"):
+    #     net = tf.layers.max_pooling2d(inputs=net,
+    #                                   pool_size=2,
+    #                                   strides=2)
 
-        with tf.name_scope("conv4_stage1"):
-            net = tf.layers.conv2d(inputs=net,
-                                   filters=512,
-                                   padding="same",
-                                   kernel_size=1,
-                                   activation="relu",
-                                   bias_initializer=tf.random_normal_initializer())
+    # with tf.name_scope("conv4_stage1"):
+        net = tf.layers.conv2d(inputs=net,
+                               filters=512,
+                               padding="same",
+                               kernel_size=1,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
 
-        with tf.name_scope("conv5_stage1"):
-            net = tf.layers.conv2d(inputs=net,
-                                   filters=out_channel_num,
-                                   padding="same",
-                                   kernel_size=1,
-                                   activation="relu",
-                                   bias_initializer=tf.random_normal_initializer())
+    # with tf.name_scope("conv5_stage1"):
+        net = tf.layers.conv2d(inputs=net,
+                               filters=out_channel_num,
+                               padding="same",
+                               kernel_size=1,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
         return net
 
     def stage_t(self, inputs, out_channel_num):
@@ -137,7 +137,7 @@ class CpmStage1:
             hm_net = self.stage_1(inputs=self.inputs_x, out_channel_num=self.hm_channel_num)
             cpm_loss.append(self.get_loss(cpm_net, self.gt_cpm, mask_type='cpm'))
             hm_loss.append(self.get_loss(hm_net, self.gt_hm, mask_type='hm'))
-            net = tf.concat([hm_net, cpm_net, self.inputs_x], 3)
+            net = tf.concat([hm_net, self.inputs_x], 3)
 
         for i in range(self.stage_num-1):
             with tf.name_scope("stage2"):
@@ -146,18 +146,24 @@ class CpmStage1:
                 hm_loss.append(self.get_loss(hm_net, self.gt_hm, mask_type='hm'))
                 cpm_loss.append(self.get_loss(cpm_net, self.gt_cpm, mask_type='cpm'))
                 if i < self.stage_num - 2:
-                    net = tf.concat([hm_net, cpm_net, self.inputs_x], 3)
+                    net = tf.concat([hm_net, self.inputs_x], 3)
 
         with tf.name_scope("loss"):
-            # total_loss = np.sum(np.sum(cpm_loss), np.sum(hm_loss))
-            total_loss = tf.reduce_sum(hm_loss) + tf.reduce_sum(cpm_loss)
+            total_loss = tf.reduce_sum(hm_loss)#  + tf.reduce_sum(cpm_loss)
         tf.summary.scalar("loss", total_loss)
 
+        # tf.summary.image('input', img_normalized, max_outputs=2)
+
+        tf.summary.image('hm', self.gt_hm[:, :, :, 0:1], max_outputs=2)
+        tf.summary.image('hm_pre', hm_net[:, :, :, 0:1], max_outputs=2)
+
+        tf.summary.image('cpm', self.gt_cpm[:, :, :, 0:1], max_outputs=2)
+        tf.summary.image('cpm_pre', cpm_net[:, :, :, 0:1], max_outputs=2)
         return hm_net, cpm_net, total_loss
 
     def get_loss(self, pre_y, gt_y, mask_type):
         if mask_type == 'cpm':
             return tf.reduce_sum(tf.square(pre_y - gt_y) * self.mask_cpm)
-        else:
+        if mask_type == 'hm':
             return tf.reduce_sum(tf.square(gt_y - pre_y) * self.mask_hm)
 

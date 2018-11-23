@@ -9,7 +9,7 @@ import vgg
 from cpm import CpmStage1
 
 echos = 100
-batch_size = 10
+batch_size = 2
 checkpoint_path = 'checkpoints/train/'
 vgg19_ckpt_path = "checkpoints/vgg/vgg_19.ckpt"
 
@@ -38,28 +38,32 @@ with tf.name_scope('inputs'):
     hm = tf.placeholder(dtype=tf.float32, shape=[None, 46, 46, 19])
     cpm = tf.placeholder(dtype=tf.float32, shape=[None, 46, 46, 38])
 
+img_normalized = raw_img / 255 - 0.5  # [-0.5, 0.5]
 with slim.arg_scope(vgg.vgg_arg_scope()):
-    vgg_outputs, end_points = vgg.vgg_19(raw_img)
+    vgg_outputs, end_points = vgg.vgg_19(img_normalized)
 
-net = CpmStage1(inputs_x=vgg_outputs, mask_cpm=mask_cpm, mask_hm=mask_hm, gt_hm=hm, gt_cpm=cpm)
+net = CpmStage1(inputs_x=vgg_outputs, mask_cpm=mask_cpm, mask_hm=mask_hm, gt_hm=hm, gt_cpm=cpm, stage_num=2)
 hm_pre, cpm_pre, loss = net.gen_net()
-
+loss = tf.div(tf.div(loss, batch_size), 2)
 global_step = tf.Variable(0, name='global_step', trainable=False)
-learning_rate = tf.train.exponential_decay(1e-4, global_step, 400, 0.8, staircase=True)
+learning_rate = tf.train.exponential_decay(1e-4, global_step, 1000, 0.8, staircase=True)
 tf.summary.scalar("lr", learning_rate)
 with tf.name_scope('train'):
     train = tf.train.AdamOptimizer(learning_rate).minimize(loss=loss, global_step=global_step)
 
-tf.summary.image('input', raw_img, max_outputs=2)
-
-tf.summary.image('hm', hm[:, :, :, 0:1], max_outputs=2)
-tf.summary.image('hm_pre', hm_pre[:, :, :, 0:1], max_outputs=2)
-
-tf.summary.image('cpm', cpm[:, :, :, 0:1], max_outputs=2)
-tf.summary.image('cpm_pre', cpm_pre[:, :, :, 0:1], max_outputs=2)
-
-variables_can_be_restored = list(set(tf.get_collection_ref(tf.GraphKeys.GLOBAL_VARIABLES)).intersection(tf.train.list_variables(vgg19_ckpt_path)))
-restorer = tf.train.Saver(variables_can_be_restored)
+tf.summary.image('input', img_normalized, max_outputs=2)
+#
+# tf.summary.image('hm', hm[:, :, :, 0:1], max_outputs=2)
+# tf.summary.image('hm_pre', hm_pre[:, :, :, 0:1], max_outputs=2)
+#
+# tf.summary.image('cpm', cpm[:, :, :, 0:1], max_outputs=2)
+# tf.summary.image('cpm_pre', cpm_pre[:, :, :, 0:1], max_outputs=2)
+# variables_can_be_restored_list = []
+# variables_can_be_restored_tup = tf.train.list_variables(vgg19_ckpt_path)
+# for variables_can_be_restored in variables_can_be_restored_tup:
+#     variables_can_be_restored_list.append(variables_can_be_restored[0])
+variables_in_checkpoint = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19')
+restorer = tf.train.Saver(variables_in_checkpoint)
 merged = tf.summary.merge_all()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -69,6 +73,7 @@ with tf.Session(config=config) as sess:
     writer = tf.summary.FileWriter(checkpoint_path, sess.graph)
     sess.run(tf.group(tf.global_variables_initializer(),
                       tf.local_variables_initializer()))
+    print('restoring from vgg19')
     restorer.restore(sess, vgg19_ckpt_path)
     for echo in range(echos):
         for i, data in enumerate(batch_df):
@@ -78,13 +83,13 @@ with tf.Session(config=config) as sess:
             #                            cpm: data[3],
             #                            hm: data[4]})
             # if i == 2:
-            for p in range(1000):
+            for p in range(20000):
                 total_loss, _, summary = sess.run([loss, train, merged], feed_dict={raw_img: data[0],
                                                                                     mask_cpm: data[1],
                                                                                     mask_hm: data[2],
                                                                                     cpm: data[3],
                                                                                     hm: data[4]})
-                print(total_loss)
+                print(str(total_loss) + ' ' + str(echo * len(batch_df) + i + p))
                 writer.add_summary(summary, echo * len(batch_df) + i + p)
             # cv2.imshow("j", data[0][0][1][:][:][:])
         # cv2.waitKey(0)

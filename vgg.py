@@ -277,7 +277,20 @@ def vgg_19(inputs,
         # if spatial_squeeze:
         #   net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
-      return layer10, end_points
+
+  layer10 = tf.layers.conv2d(inputs=layer10,
+                               filters=256,
+                               padding="same",
+                               kernel_size=3,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
+  layer10 = tf.layers.conv2d(inputs=layer10,
+                               filters=128,
+                               padding="same",
+                               kernel_size=3,
+                               activation="relu",
+                               bias_initializer=tf.random_normal_initializer())
+  return layer10, end_points
 vgg_19.default_image_size = 224
 
 # Alias
