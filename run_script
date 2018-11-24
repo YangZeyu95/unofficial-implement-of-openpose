@@ -1,0 +1,1 @@
+python train.py --annot_path_val dataset/COCO/annotations/person_keypoints_val2017.json --img_path_val dataset/COCO/images/val2017/

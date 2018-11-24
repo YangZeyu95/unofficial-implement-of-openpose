@@ -22,21 +22,21 @@ ALL_HEATMAP_MASK = np.repeat(
     np.ones((46, 46, 1), dtype=np.uint8), 19, axis=2)
 
 AUGMENTORS_LIST = [
-        ScaleAug(scale_min=1,
-                 scale_max=1,
-                 target_dist=1,
-                 interp=cv2.INTER_CUBIC),
+    ScaleAug(scale_min=0.5,
+             scale_max=1.1,
+             target_dist=0.6,
+             interp=cv2.INTER_CUBIC),
 
-        RotateAug(rotate_max_deg=0,
-                  interp=cv2.INTER_CUBIC,
-                  border=cv2.BORDER_CONSTANT,
-                  border_value=(128, 128, 128), mask_border_val=1),
+    RotateAug(rotate_max_deg=40,
+              interp=cv2.INTER_CUBIC,
+              border=cv2.BORDER_CONSTANT,
+              border_value=(128, 128, 128), mask_border_val=1),
 
-        CropAug(368, 368, center_perterb_max=40, border_value=(128, 128, 128),
-                 mask_border_val=1),
+    CropAug(368, 368, center_perterb_max=40, border_value=(128, 128, 128),
+            mask_border_val=1),
 
-        FlipAug(num_parts=18, prob=0.5),
-    ]
+    FlipAug(num_parts=18, prob=0.5),
+]
 
 
 def read_img(components):
@@ -96,9 +96,9 @@ def augment(components):
     for aug in AUGMENTORS_LIST:
         (im, mask), params = aug.augment_return_params(
             AugImgMetadata(img=meta.img,
-                            mask=meta.mask,
-                            center=aug_center,
-                            scale=meta.scale))
+                           mask=meta.mask,
+                           center=aug_center,
+                           scale=meta.scale))
 
         # augment joints
         aug_joints = aug.augment_coords(aug_joints, params)
@@ -146,7 +146,8 @@ def create_all_mask(mask, num, stride):
     :return:
     """
     scale_factor = 1.0 / stride
-    small_mask = cv2.resize(mask, (0, 0), fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_CUBIC)
+    small_mask = cv2.resize(mask, (0, 0), fx=scale_factor,
+                            fy=scale_factor, interpolation=cv2.INTER_CUBIC)
     small_mask = small_mask[:, :, np.newaxis]
     return np.repeat(small_mask, num, axis=2)
 
@@ -197,7 +198,7 @@ def get_dataflow(coco_data_paths):
     df = MapData(df, augment)
     df = MapData(df, apply_mask)
     df = MapData(df, build_sample)
-    df = PrefetchDataZMQ(df, nr_proc=4) #df = PrefetchData(df, 2, 1)
+    df = PrefetchDataZMQ(df, nr_proc=4)  # df = PrefetchData(df, 2, 1)
 
     return df
 
@@ -231,7 +232,8 @@ if __name__ == '__main__':
     # img_dir = os.path.abspath(os.path.join(curr_dir, '../dataset/val2017/'))
     annot_path = '/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/person_keypoints_val2017.json'
     img_dir = '/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/val2017/'
-    df = CocoDataFlow((368, 368), COCODataPaths(annot_path, img_dir))#, select_ids=[1000])
+    df = CocoDataFlow((368, 368), COCODataPaths(
+        annot_path, img_dir))  # , select_ids=[1000])
     df.prepare()
     df = MapData(df, read_img)
     df = MapData(df, gen_mask)
@@ -246,5 +248,5 @@ if __name__ == '__main__':
     # )
 
     # TestDataSpeed(df, size=100).start()
-    TFRecordSerializer.save(df,'/media/yzy/diskF/dynamic/unofficial-implement-for-openpose/dataset/COCO/tfrecord/val2017.tfrecord')
-
+    TFRecordSerializer.save(
+        df, '/media/yzy/diskF/dynamic/unofficial-implement-for-openpose/dataset/COCO/tfrecord/val2017.tfrecord')
