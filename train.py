@@ -56,6 +56,7 @@ if __name__ == '__main__':
                     mask_hm=mask_hm, gt_hm=hm, gt_cpm=cpm, stage_num=args.stage_num)
     hm_pre, cpm_pre, loss = net.gen_net()
 
+    # 这个loss是其他版本代码里的实现
     losses = []
     with tf.name_scope('loss'):
         for idx, (l1, l2) in enumerate(zip(cpm_pre, hm_pre)):
@@ -63,6 +64,7 @@ if __name__ == '__main__':
             loss_l2 = tf.nn.l2_loss(tf.concat(l2, axis=0) - hm)
             losses.append(tf.reduce_mean([loss_l1, loss_l2]))
         loss_2 = tf.reduce_sum(losses) / args.batch_size
+
     tf.summary.scalar("loss2", loss_2)
     global_step = tf.Variable(0, name='global_step', trainable=False)
     learning_rate = tf.train.exponential_decay(5e-4, global_step, 1000, 0.9, staircase=True)
