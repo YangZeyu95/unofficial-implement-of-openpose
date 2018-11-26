@@ -17,39 +17,34 @@ class CpmStage1:
                                padding="same",
                                kernel_size=3,
                                activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+                               kernel_initializer=tf.random_normal_initializer())
         # net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
         net = tf.layers.conv2d(inputs=net,
                                filters=128,
                                padding="same",
                                kernel_size=3,
                                activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+                               kernel_initializer=tf.random_normal_initializer())
         # net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
         net = tf.layers.conv2d(inputs=net,
                                filters=128,
                                padding="same",
                                kernel_size=3,
                                activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+                               kernel_initializer=tf.random_normal_initializer())
         # net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
         net = tf.layers.conv2d(inputs=net,
                                filters=512,
                                padding="same",
                                kernel_size=1,
                                activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+                               kernel_initializer=tf.random_normal_initializer())
         net = tf.layers.conv2d(inputs=net,
                                filters=out_channel_num,
                                padding="same",
                                kernel_size=1,
                                activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+                               kernel_initializer=tf.random_normal_initializer())
         return net
 
     def stage_t(self, inputs, out_channel_num):
@@ -127,8 +122,8 @@ class CpmStage1:
             total_loss = tf.reduce_sum(hm_loss) + tf.reduce_sum(cpm_loss)
         tf.summary.scalar("loss", total_loss)
 
-        tf.summary.image('hm', self.gt_hm[:, :, :, 0:1], max_outputs=4)
-        tf.summary.image('hm_pre', hm_net[:, :, :, 0:1], max_outputs=4)
+        # tf.summary.image('hm', self.gt_hm[:, :, :, 0:1], max_outputs=4)
+        # tf.summary.image('hm_pre', hm_net[:, :, :, 0:1], max_outputs=4)
 
         return hm_pre, cpm_pre, total_loss
 

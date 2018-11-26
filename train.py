@@ -25,6 +25,7 @@ if __name__ == '__main__':
                         'person_keypoints_val2017.json')
     parser.add_argument('--img_path_val', type=str, default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
                         'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/val2017/')
+    parser.add_argument('--stage_num', type=str, default=6)
     args = parser.parse_args()
     echos = 100
 
@@ -52,33 +53,43 @@ if __name__ == '__main__':
 
     # get net graph
     net = CpmStage1(inputs_x=vgg_outputs, mask_cpm=mask_cpm,
-                    mask_hm=mask_hm, gt_hm=hm, gt_cpm=cpm, stage_num=6)
+                    mask_hm=mask_hm, gt_hm=hm, gt_cpm=cpm, stage_num=args.stage_num)
     hm_pre, cpm_pre, loss = net.gen_net()
 
     losses = []
     with tf.name_scope('loss'):
         for idx, (l1, l2) in enumerate(zip(cpm_pre, hm_pre)):
-            loss_l1 = tf.nn.l2_loss(tf.concat(l1, axis=0) - mask_cpm)
-            loss_l2 = tf.nn.l2_loss(tf.concat(l2, axis=0) - mask_hm)
+            loss_l1 = tf.nn.l2_loss(tf.concat(l1, axis=0) - cpm)
+            loss_l2 = tf.nn.l2_loss(tf.concat(l2, axis=0) - hm)
             losses.append(tf.reduce_mean([loss_l1, loss_l2]))
-        loss = tf.reduce_sum(losses) / args.batch_size
-
+        loss_2 = tf.reduce_sum(losses) / args.batch_size
+    tf.summary.scalar("loss2", loss_2)
     global_step = tf.Variable(0, name='global_step', trainable=False)
     learning_rate = tf.train.exponential_decay(5e-4, global_step, 1000, 0.9, staircase=True)
     tf.summary.scalar("lr", learning_rate)
 
     with tf.name_scope('train'):
-        train = tf.train.AdamOptimizer(learning_rate).minimize(loss=loss,
+        train = tf.train.AdagradOptimizer(learning_rate=0.001).minimize(loss=loss,
                                                                global_step=global_step,
                                                                var_list=[tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
                                                                                            scope='stage1'),
                                                                          tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
-                                                                                           scope='staget')])
+                                                                                           scope='staget'),
+                                                                         tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                                                                           scope='add_layers')])# ,
+                                                                         # tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                                                         #                   scope='vgg_19')])
 
     # get vgg19 restorer
     variables_in_checkpoint = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19')
     restorer = tf.train.Saver(variables_in_checkpoint)
 
+    tf.summary.image('vgg_out', tf.transpose(vgg_outputs[0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=512)
+    tf.summary.image('cpm_gt', cpm[:, :, :, 0:1], max_outputs=4)
+    tf.summary.image('hm_gt', hm[:, :, :, 0:1], max_outputs=4)
+    for i in range(args.stage_num):
+        tf.summary.image('hm_pre_stage_%d' % i, hm_pre[i][:, :, :, 0:1], max_outputs=4)
+        tf.summary.image('cpm_pre_stage_%d' % i, cpm_pre[i][:, :, :, 0:1], max_outputs=4)
     tf.summary.image('input', raw_img, max_outputs=4)
     tf.summary.image('hm_mask', mask_hm[:, :, :, 0:1], max_outputs=4)
     merged = tf.summary.merge_all()
@@ -93,11 +104,12 @@ if __name__ == '__main__':
         for echo in range(echos):
             for i, data in enumerate(batch_df):
                 for p in range(20000):
-                    total_loss, _, summary, hm_out, m_hm = sess.run([loss, train, merged, hm_pre, mask_hm], feed_dict={raw_img: data[0],
-                                                                                        mask_cpm: data[1],
-                                                                                        mask_hm: data[2],
-                                                                                        cpm: data[3],
-                                                                                        hm: data[4]})
+                    total_loss, _, summary, hm_out, m_hm = sess.run([loss, train, merged, hm_pre, mask_hm],
+                                                                    feed_dict={raw_img: data[0],
+                                                                               mask_cpm: data[1],
+                                                                               mask_hm: data[2],
+                                                                               cpm: data[3],
+                                                                               hm: data[4]})
                     # loss_img = total_loss[0, :, :, 0]
                     print(str(total_loss) + ' ' +
                           str(echo * len(batch_df) + i + p))
