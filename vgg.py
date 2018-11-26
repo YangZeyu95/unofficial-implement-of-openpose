@@ -277,56 +277,49 @@ def vgg_19(inputs,
         # if spatial_squeeze:
         #   net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
-  with tf.variable_scope('add_layers'):
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                               filters=256,
-                               padding="same",
-                               kernel_size=3,
-                               activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                               filters=128,
-                               padding="same",
-                               kernel_size=3,
-                               activation="relu",
-                               bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                               kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                           filters=128,
-                           padding="same",
-                           kernel_size=3,
-                           activation="relu",
-                           bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                           kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                           filters=128,
-                           padding="same",
-                           kernel_size=3,
-                           activation="relu",
-                           bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                           kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                           filters=128,
-                           padding="same",
-                           kernel_size=3,
-                           activation="relu",
-                           bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                           kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                           filters=512,
-                           padding="same",
-                           kernel_size=1,
-                           activation="relu",
-                           bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                           kernel_initializer=tf.random_normal_initializer(stddev=0.1))
-    layer10 = tf.layers.conv2d(inputs=layer10,
-                           filters=1,
-                           padding="same",
-                           kernel_size=1,
-                           activation="relu",
-                           bias_initializer=tf.random_normal_initializer(stddev=0.1),
-                           kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  # with tf.variable_scope('add_layers'):
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                              filters=256,
+  #                              padding="same",
+  #                              kernel_size=3,
+  #                              activation="relu",
+  #                              kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                              filters=128,
+  #                              padding="same",
+  #                              kernel_size=3,
+  #                              activation="relu",
+  #                              kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                          filters=128,
+  #                          padding="same",
+  #                          kernel_size=3,
+  #                          activation="relu",
+  #                          kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                          filters=128,
+  #                          padding="same",
+  #                          kernel_size=3,
+  #                          activation="relu",
+  #                          kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                          filters=128,
+  #                          padding="same",
+  #                          kernel_size=3,
+  #                          activation="relu",
+  #                          kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                          filters=512,
+  #                          padding="same",
+  #                          kernel_size=1,
+  #                          activation="relu",
+  #                          kernel_initializer=tf.random_normal_initializer(stddev=0.1))
+  #   layer10 = tf.layers.conv2d(inputs=layer10,
+  #                          filters=1,
+  #                          padding="same",
+  #                          kernel_size=1,
+  #                          activation="relu",
+  #                          kernel_initializer=tf.random_normal_initializer(stddev=0.1))
   return layer10, end_points
 vgg_19.default_image_size = 224
 

@@ -22,20 +22,20 @@ ALL_HEATMAP_MASK = np.repeat(
     np.ones((46, 46, 1), dtype=np.uint8), 19, axis=2)
 
 AUGMENTORS_LIST = [
-    ScaleAug(scale_min=0.5,
-             scale_max=1.1,
-             target_dist=0.6,
+    ScaleAug(scale_min=1,
+             scale_max=1,
+             target_dist=1,
              interp=cv2.INTER_CUBIC),
 
-    RotateAug(rotate_max_deg=40,
+    RotateAug(rotate_max_deg=0,
               interp=cv2.INTER_CUBIC,
               border=cv2.BORDER_CONSTANT,
               border_value=(128, 128, 128), mask_border_val=1),
 
-    CropAug(368, 368, center_perterb_max=40, border_value=(128, 128, 128),
+    CropAug(368, 368, center_perterb_max=0, border_value=(128, 128, 128),
             mask_border_val=1),
 
-    FlipAug(num_parts=18, prob=0.5),
+    FlipAug(num_parts=18, prob=0),
 ]
 
 
@@ -55,7 +55,7 @@ def read_img(components):
 
     arr = np.fromstring(img_buf, np.uint8)
     meta.img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    meta.img = cv2.cvtColor(meta.img, cv2.COLOR_BGR2RGB)
+    # meta.img = cv2.cvtColor(meta.img, cv2.COLOR_BGR2RGB)
     meta.height, meta.width = meta.img.shape[:2]
 
     return components
