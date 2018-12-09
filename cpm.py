@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class CpmStage1:
-    def __init__(self, inputs_x, mask_cpm=None, mask_hm=None, gt_hm=None, gt_cpm=None, stage_num=6, hm_channel_num=19, cpm_channel_num=38):
+    def __init__(self, inputs_x, use_bn=False, mask_cpm=None, mask_hm=None, gt_hm=None, gt_cpm=None, stage_num=6, hm_channel_num=19, cpm_channel_num=38):
         self.inputs_x = inputs_x
         self.mask_cpm = mask_cpm
         self.mask_hm = mask_hm
@@ -10,9 +10,10 @@ class CpmStage1:
         self.stage_num = stage_num
         self.cpm_channel_num = cpm_channel_num
         self.hm_channel_num = hm_channel_num
+        self.use_bn = use_bn
     def add_layers(self, inputs):
-        net = self.conv2(inputs=inputs, filters=256, padding='SAME', kernel_size=3, name='add_1')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, name='add_2')
+        net = self.conv2(inputs=inputs, filters=256, padding='SAME', kernel_size=3, normalization=self.use_bn, name='add_1')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, normalization=self.use_bn, name='add_2')
         # net = tf.layers.conv2d(inputs=inputs,
         #                              filters=256,
         #                              padding="same",
@@ -66,11 +67,11 @@ class CpmStage1:
         #                        kernel_size=1,
         #                        kernel_initializer=tf.truncated_normal_initializer(stddev=0.1),
         #                        bias_initializer=tf.truncated_normal_initializer(stddev=0.1))
-        net = self.conv2(inputs=inputs, filters=128, padding='SAME', kernel_size=3, name=name+'_conv1')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, name=name+'_conv2')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, name=name+'_conv3')
-        net = self.conv2(inputs=net, filters=512, padding='SAME', kernel_size=1, name=name+'_conv4')
-        net = self.conv2(inputs=net, filters=out_channel_num, padding='SAME', kernel_size=1, act=False, name=name+'_conv5')
+        net = self.conv2(inputs=inputs, filters=128, padding='SAME', kernel_size=3, normalization=self.use_bn, name=name+'_conv1')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, normalization=self.use_bn, name=name+'_conv2')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, normalization=self.use_bn, name=name+'_conv3')
+        net = self.conv2(inputs=net, filters=512, padding='SAME', kernel_size=1, normalization=self.use_bn, name=name+'_conv4')
+        net = self.conv2(inputs=net, filters=out_channel_num, padding='SAME', kernel_size=1, act=False, normalization=self.use_bn, name=name+'_conv5')
         return net
 
     def stage_t(self, inputs, out_channel_num, name):
@@ -122,12 +123,12 @@ class CpmStage1:
         #                        kernel_size=1,
         #                        kernel_initializer=tf.truncated_normal_initializer(stddev=0.1),
         #                        bias_initializer=tf.truncated_normal_initializer(stddev=0.1))
-        net = self.conv2(inputs=inputs, filters=128, padding='SAME', kernel_size=7, name=name+'_conv1')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, name=name+'_conv2')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, name=name+'_conv3')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, name=name+'_conv4')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, name=name+'_conv5')
-        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=1, name=name+'_conv6')
+        net = self.conv2(inputs=inputs, filters=128, padding='SAME', kernel_size=7, normalization=self.use_bn, name=name+'_conv1')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, normalization=self.use_bn, name=name+'_conv2')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, normalization=self.use_bn, name=name+'_conv3')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, normalization=self.use_bn, name=name+'_conv4')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=7, normalization=self.use_bn, name=name+'_conv5')
+        net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=1, normalization=self.use_bn, name=name+'_conv6')
         net = self.conv2(inputs=net, filters=out_channel_num, padding='SAME', kernel_size=1, act=False, name=name+'_conv7')
         return net
 
