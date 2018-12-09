@@ -55,7 +55,7 @@ def read_img(components):
 
     arr = np.fromstring(img_buf, np.uint8)
     meta.img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    # meta.img = cv2.cvtColor(meta.img, cv2.COLOR_BGR2RGB)
+    meta.img = cv2.cvtColor(meta.img, cv2.COLOR_BGR2RGB)
     meta.height, meta.width = meta.img.shape[:2]
 
     return components
@@ -194,7 +194,7 @@ def get_dataflow(coco_data_paths):
     df = CocoDataFlow((368, 368), coco_data_paths)
     df.prepare()
     df = MapData(df, read_img)
-    df = MapData(df, gen_mask)
+    # df = MapData(df, gen_mask)
     df = MapData(df, augment)
     df = MapData(df, apply_mask)
     df = MapData(df, build_sample)
