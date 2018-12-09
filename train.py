@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_argument('--input-width', type=int, default=368)
     parser.add_argument('--input-height', type=int, default=368)
     parser.add_argument('--img_path', type=str, default='images/ski.jpg')
-    parser.add_argument('--echos', type=str, default=30)
+    parser.add_argument('--max_echos', type=str, default=30)
     args = parser.parse_args()
 
     if args.not_continue_training:
@@ -81,8 +81,7 @@ if __name__ == '__main__':
     scale = 8
     set_network_scale(scale)
     df = get_dataflow_batch(args.annot_path_train, True, args.batch_size, img_path=args.img_path_train)
-    sample_num = df.size()
-    steps_per_echo = int(sample_num / args.batch_size)
+    steps_per_echo = df.size()
     enqueuer = DataFlowToQueue(df, [raw_img, hm, cpm], queue_size=4)
     q_inp, q_heat, q_vect = enqueuer.dequeue()
     q_inp_split, q_heat_split, q_vect_split = tf.split(q_inp, 1), tf.split(q_heat, 1), tf.split(q_vect, 1)
@@ -111,8 +110,7 @@ if __name__ == '__main__':
         loss = tf.reduce_sum(losses) / args.batch_size
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
-    learning_rate = tf.train.exponential_decay(1e-4, global_step, 10000, 0.9, staircase=True)
-
+    learning_rate = tf.train.exponential_decay(1e-4, global_step, steps_per_echo, 0.9, staircase=True)
     trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='train_layers')
     with tf.name_scope('train'):
         train = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1e-8).minimize(loss=loss,
@@ -157,18 +155,18 @@ if __name__ == '__main__':
         coord = tf.train.Coordinator()
         enqueuer.set_coordinator(coord)
         enqueuer.start()
-
         while True:
             total_loss, _, gs_num = sess.run([loss, train, global_step])
+            echo = gs_num / steps_per_echo
             if gs_num % args.save_summary_frequency == 0:
                 total_loss, gs_num, summary, lr = sess.run([loss, global_step, merged, learning_rate])
                 writer.add_summary(summary, gs_num)
-                echo = gs_num / steps_per_echo
                 logger.info('echos=%f, setp=%d, total_loss=%f, lr=%f' % (echo, gs_num, total_loss, lr))
             if gs_num % args.save_checkpoint_frequency == 0:
                 saver.save(sess, save_path=checkpoint_path + '/' + 'model-%d.ckpt' % gs_num)
                 logger.info('saving checkpoint to ' + checkpoint_path + '/' + 'model-%d.ckpt' % gs_num)
-
+            if echo >= args.max_echos:
+                break
 
 
 

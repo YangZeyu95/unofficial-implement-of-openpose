@@ -10,7 +10,6 @@ class CpmStage1:
         self.stage_num = stage_num
         self.cpm_channel_num = cpm_channel_num
         self.hm_channel_num = hm_channel_num
-        self.regularizer = tf.contrib.layers.l1_regularizer(scale=0.1)
     def add_layers(self, inputs):
         net = self.conv2(inputs=inputs, filters=256, padding='SAME', kernel_size=3, name='add_1')
         net = self.conv2(inputs=net, filters=128, padding='SAME', kernel_size=3, name='add_2')
