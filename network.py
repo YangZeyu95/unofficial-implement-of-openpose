@@ -4,14 +4,14 @@ import tensorflow as tf
 def conv2(inputs, filters, kernel_size, name, padding='SAME', act=True, normalization=True):
     channels_in = inputs[0, 0, 0, :].get_shape().as_list()[0]
     with tf.variable_scope(name) as scope:
-        # W = tf.Variable(tf.truncated_normal(shape=[kernel_size, kernel_size, channels_in, filters], stddev=0.1))
-        W = tf.get_variable('weights', shape=[kernel_size, kernel_size, channels_in, filters], trainable=True,
+        # w = tf.Variable(tf.truncated_normal(shape=[kernel_size, kernel_size, channels_in, filters], stddev=0.1))
+        w = tf.get_variable('weights', shape=[kernel_size, kernel_size, channels_in, filters], trainable=True,
                             initializer=tf.contrib.layers.xavier_initializer())
         # b = tf.Variable(tf.truncated_normal(shape=[filters], stddev=0.1))
         b = tf.get_variable('biases', shape=[filters], trainable=True,
                             initializer=tf.contrib.layers.xavier_initializer())
 
-        conv = tf.nn.conv2d(inputs, W, strides=[1, 1, 1, 1], padding=padding)
+        conv = tf.nn.conv2d(inputs, w, strides=[1, 1, 1, 1], padding=padding)
         output = tf.nn.bias_add(conv, b)
         # if normalization:
         #     axis = list(range(len(output.get_shape()) - 1))
@@ -20,7 +20,7 @@ def conv2(inputs, filters, kernel_size, name, padding='SAME', act=True, normaliz
         if act:
             output = tf.nn.relu(output, name=scope.name)
     tf.summary.histogram('conv', conv)
-    tf.summary.histogram('weights', W)
+    tf.summary.histogram('weights', w)
     tf.summary.histogram('biases', b)
     tf.summary.histogram('output', output)
     return output

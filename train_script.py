@@ -25,7 +25,9 @@ if __name__ == '__main__':
     parser.add_argument('--input-height', type=int, default=368)
     parser.add_argument('--img_path', type=str, default='images/ski.jpg')
     parser.add_argument('--max_echos', type=str, default=5)
+    parser.add_argument('--use_bn', type=bool, default=False)
+    parser.add_argument('--loss_func', type=str, default='square')
     args = parser.parse_args()
 
-    train.train(args=args, loss_func='org', use_bn=False)
-    train.train(args=args, loss_func='l2', use_bn=True)
+    # train.train(args=args, loss_func='org', use_bn=False)
+    train.train()
