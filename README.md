@@ -26,3 +26,4 @@ make sure have this structure:
 ## Test
 Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
 `python run.py`
+pretrained model will be uploaded soon.
