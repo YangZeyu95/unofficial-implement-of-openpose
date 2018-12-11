@@ -1,5 +1,5 @@
 # Unofficial-Implement-of-Openpose
-An unofficial implement for openpose using TensorFlow.
+An easy implement for openpose using TensorFlow.代码贼好看懂
 
 Only basic python is used, so the code is easy to understand.
 
