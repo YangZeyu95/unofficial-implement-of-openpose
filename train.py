@@ -127,8 +127,8 @@ def train():
     tf.summary.histogram('added_layers_out', added_layers_out)
     tf.summary.image('vgg_out', tf.transpose(vgg_outputs[0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=512)
     tf.summary.image('added_layers_out', tf.transpose(added_layers_out[0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=128)
-    tf.summary.image('paf_gt', tf.transpose(q_vect_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=100)
-    tf.summary.image('hm_gt', tf.transpose(q_heat_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=100)
+    tf.summary.image('paf_gt', tf.transpose(q_vect_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=38)
+    tf.summary.image('hm_gt', tf.transpose(q_heat_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=19)
     for i in range(args.stage_num - 1):
         tf.summary.image('hm_pre_stage_%d' % i, tf.transpose(hm_pre[i][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=19)
         tf.summary.image('paf_pre_stage_%d' % i, tf.transpose(paf_pre[i][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=38)
