@@ -1,4 +1,4 @@
-# unofficial-implement-for-openpose
+# unofficial-implement-of-openpose
 An unofficial implement for openpose using TensorFlow.
 
 Only basic python is used, so the code is easy to understand.
