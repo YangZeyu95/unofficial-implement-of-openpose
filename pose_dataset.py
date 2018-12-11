@@ -364,7 +364,7 @@ def get_dataflow(path, is_train, img_path=None):
         #     ]), 0.7)
         # ]
         # ds = AugmentImageComponent(ds, augs)
-        ds = PrefetchData(ds, 1000, multiprocessing.cpu_count()-2)
+        ds = PrefetchData(ds, 1000, multiprocessing.cpu_count()-1)
     else:
         ds = MultiThreadMapData(ds, nr_thread=16, map_func=read_image_url, buffer_size=1000)
         ds = MapDataComponent(ds, pose_resize_shortestedge_fixed)

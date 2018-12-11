@@ -145,7 +145,9 @@ class PafNet:
             if normalization:
                 axis = list(range(len(output.get_shape()) - 1))
                 mean, variance = tf.nn.moments(conv, axes=axis)
-                output = tf.nn.batch_normalization(output, mean, variance, offset=None, scale=None, variance_epsilon=0.0001)
+                scale = tf.Variable(tf.ones([filters]), name='scale')
+                beta = tf.Variable(tf.zeros([filters]), name='beta')
+                output = tf.nn.batch_normalization(output, mean, variance, offset=beta, scale=scale, variance_epsilon=0.0001)
             if act:
                 output = tf.nn.relu(output, name=scope.name)
         tf.summary.histogram('conv', conv)
@@ -158,7 +160,7 @@ class PafNet:
     def gen_net(self):
         paf_pre = []
         hm_pre = []
-        with tf.variable_scope('paf_layers'):
+        with tf.variable_scope('openpose_layers'):
             with tf.variable_scope('cpm_layers'):
                 added_layers_out = self.add_layers(inputs=self.inputs_x)
 

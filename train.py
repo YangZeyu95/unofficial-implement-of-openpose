@@ -92,7 +92,7 @@ def train():
     net = PafNet(inputs_x=vgg_outputs, stage_num=args.stage_num, hm_channel_num=args.hm_channels, use_bn=args.use_bn)
     hm_pre, paf_pre, added_layers_out = net.gen_net()
 
-    # 这个loss是其他版本代码里的实现
+    # two kinds of loss
     losses = []
     with tf.name_scope('loss'):
         for idx, (l1, l2), in enumerate(zip(hm_pre, paf_pre)):
@@ -110,7 +110,7 @@ def train():
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
     learning_rate = tf.train.exponential_decay(1e-4, global_step, steps_per_echo, 0.5, staircase=True)
-    trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='train_layers')
+    trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
     with tf.name_scope('train'):
         train = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1e-8).minimize(loss=loss,
                                                                                            global_step=global_step,

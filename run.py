@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from tensorflow.contrib import slim
 import vgg
-from cpm import CpmStage1
+from cpm import PafNet
 import common
 from tensblur.smoother import Smoother
 from estimator import PoseEstimator, TfPoseEstimator
@@ -22,10 +22,11 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
-    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-9-22-31-25')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-10-15-47-16/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--img_path', type=str, default='images/1.png')
     parser.add_argument('--run_model', type=str, default='webcam')
+    parser.add_argument('--use_bn', type=bool, default=True)
     args = parser.parse_args()
 
     checkpoint_path = args.checkpoint_path
@@ -43,7 +44,7 @@ if __name__ == '__main__':
 
     # get net graph
     logger.info('initializing model...')
-    net = CpmStage1(inputs_x=vgg_outputs)
+    net = PafNet(inputs_x=vgg_outputs, use_bn=True)
     hm_pre, cpm_pre, added_layers_out = net.gen_net()
 
     hm_up = tf.image.resize_area(hm_pre[4], img_size)
@@ -56,7 +57,7 @@ if __name__ == '__main__':
                                  tf.zeros_like(gaussian_heatMat))
 
     logger.info('initialize saver...')
-    trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='train_layers')
+    trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
     restorer = tf.train.Saver(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19'), name='vgg_restorer')
     saver = tf.train.Saver(trainable_var_list)
 
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            cap = cv2.VideoCapture('http://admin:admin@192.168.1.103:8081')
+            cap = cv2.VideoCapture('http://admin:admin@192.168.1.109:8081')
             # cap = cv2.VideoCapture(0)
             _, image = cap.read()
             if image is None:
