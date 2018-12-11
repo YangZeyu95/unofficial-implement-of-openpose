@@ -18,7 +18,7 @@ Python 3.6
      -images/
        train2017/
        val2017/
-     -annotations/
+     -annotations/  
 
 3. Specify the '--dathapath' and '--imgpath' in train.py to your own'COCO/annotations/' and 'COCO/images/'
 3. run train.py and install requirements follow the error and run again.
