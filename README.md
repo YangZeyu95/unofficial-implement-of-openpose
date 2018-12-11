@@ -13,11 +13,11 @@ Python 3.6
 
 ## Training
 1. Download vgg19 weights file [here](http://download.tensorflow.org/models/vgg_19_2016_08_28.tar.gz) or 链接: https://pan.baidu.com/s/1ZxWKVPe4hrEhDxOpjLiUKA 提取码: widj and uzip to 'checkpoints/vgg/' (please create the path yourself)
-2. Download COCO2017: 2017 Train images, 2017 Val images and 2017 Train/Val annotations [here](http://cocodataset.org/#download)
-   COCO/
-     -images/
-       train2017/
-       val2017/
+2. Download COCO2017: 2017 Train images, 2017 Val images and 2017 Train/Val annotations [here](http://cocodataset.org/#download)   
+   COCO/  
+     -images/  
+       train2017/  
+       val2017/  
      -annotations/    
 
 3. Specify the '--dathapath' and '--imgpath' in train.py to your own'COCO/annotations/' and 'COCO/images/'
