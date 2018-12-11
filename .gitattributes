@@ -1,2 +1,2 @@
 *.py linguist-language=python
-*.html linguist-language=python
+*.cpp linguist-language=python
