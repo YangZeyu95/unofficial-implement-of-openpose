@@ -25,5 +25,5 @@ make sure have this structure:
 4. run train.py and install requirements follow the error and run again.
 ## Test
 Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
-`python run.py`
+`python run.py`  
 pretrained model will be uploaded soon.
