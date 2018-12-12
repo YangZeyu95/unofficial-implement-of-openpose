@@ -167,6 +167,8 @@ class PafNet:
             with tf.variable_scope('stage1'):
                 paf_net = self.stage_1(inputs=added_layers_out, out_channel_num=self.paf_channel_num, name='stage1_paf')
                 hm_net = self.stage_1(inputs=added_layers_out, out_channel_num=self.hm_channel_num, name='stage1_hm')
+                paf_pre.append(paf_net)
+                hm_pre.append(hm_net)
                 net = tf.concat([hm_net, paf_net, added_layers_out], 3)
 
             with tf.variable_scope('staget'):

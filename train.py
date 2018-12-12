@@ -22,13 +22,13 @@ def train():
     parser.add_argument('--img_path_train', type=str,
                         default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/')
-    parser.add_argument('--annot_path_val', type=str,
-                        default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
-                                'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/'
-                                'person_keypoints_val2017.json')
-    parser.add_argument('--img_path_val', type=str,
-                        default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
-                                'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/val2017/')
+    # parser.add_argument('--annot_path_val', type=str,
+    #                     default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+    #                             'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/'
+    #                             'person_keypoints_val2017.json')
+    # parser.add_argument('--img_path_val', type=str,
+    #                     default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+    #                             'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/val2017/')
     parser.add_argument('--save_checkpoint_frequency', type=str, default=1000)
     parser.add_argument('--save_summary_frequency', type=str, default=100)
     parser.add_argument('--stage_num', type=str, default=6)
@@ -38,7 +38,7 @@ def train():
     parser.add_argument('--input-height', type=int, default=368)
     parser.add_argument('--img_path', type=str, default='images/ski.jpg')
     parser.add_argument('--max_echos', type=str, default=5)
-    parser.add_argument('--use_bn', type=bool, default=True)
+    parser.add_argument('--use_bn', type=bool, default=False)
     parser.add_argument('--loss_func', type=str, default='l2')
     args = parser.parse_args()
 
@@ -129,7 +129,7 @@ def train():
     tf.summary.image('added_layers_out', tf.transpose(added_layers_out[0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=128)
     tf.summary.image('paf_gt', tf.transpose(q_vect_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=38)
     tf.summary.image('hm_gt', tf.transpose(q_heat_split[0][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=19)
-    for i in range(args.stage_num - 1):
+    for i in range(args.stage_num):
         tf.summary.image('hm_pre_stage_%d' % i, tf.transpose(hm_pre[i][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=19)
         tf.summary.image('paf_pre_stage_%d' % i, tf.transpose(paf_pre[i][0:1, :, :, :], perm=[3, 1, 2, 0]), max_outputs=38)
     tf.summary.image('input', img_normalized, max_outputs=4)

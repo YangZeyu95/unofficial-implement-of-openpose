@@ -22,11 +22,11 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
-    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-10-15-47-16/')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-7-16-12-50/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--img_path', type=str, default='images/1.png')
     parser.add_argument('--run_model', type=str, default='webcam')
-    parser.add_argument('--use_bn', type=bool, default=True)
+    parser.add_argument('--use_bn', type=bool, default=False)
     args = parser.parse_args()
 
     checkpoint_path = args.checkpoint_path
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            cap = cv2.VideoCapture('http://admin:admin@192.168.1.109:8081')
+            cap = cv2.VideoCapture('http://admin:admin@192.168.1.55:8081')
             # cap = cv2.VideoCapture(0)
             _, image = cap.read()
             if image is None:
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             if image is None:
                 logger.error('Image can not be read, path=%s' % args.img_path)
                 sys.exit(-1)
-            img = np.array(cv2.resize(image, (320, 240)))
+            img = np.array(cv2.resize(image, (240, 320)))
             img = img[np.newaxis, :]
             peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up], feed_dict={raw_img: img, img_size: size})
             bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
