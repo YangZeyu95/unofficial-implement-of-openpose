@@ -22,7 +22,7 @@ make sure have this structure:
 　-annotations/    
 
 3. Specify the '--annot_path_train' and '--img_path_train' in train.py to your own 'COCO/annotations/' and 'COCO/images/'.
-4. run train.py and install requirements follow the error and run again.
+4. run train.py `python train.py` and install requirements follow the error and run again.
 ## Test
 Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
 `python run.py`  
