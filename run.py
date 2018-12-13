@@ -24,8 +24,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-12-10-47-38/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
-    parser.add_argument('--img_path', type=str, default='images/1.png')
-    parser.add_argument('--run_model', type=str, default='webcam')
+    parser.add_argument('--img_path', type=str, default='images/ski.jpg')
+    parser.add_argument('--run_model', type=str, default='img')
     parser.add_argument('--use_bn', type=bool, default=False)
     args = parser.parse_args()
 
@@ -69,8 +69,8 @@ if __name__ == '__main__':
         logger.info('restoring vgg weights...')
         restorer.restore(sess, args.backbone_net_ckpt_path)
         logger.info('restoring from checkpoint...')
-        # saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
-        saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
+        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        # saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 time_o = time.time()
         else:
             image = common.read_imgfile(args.img_path)
-            size = [image.shape[0], image.shape[1]]
+            size = [image.shape[1], image.shape[0]]
             if image is None:
                 logger.error('Image can not be read, path=%s' % args.img_path)
                 sys.exit(-1)
