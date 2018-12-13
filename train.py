@@ -13,9 +13,10 @@ from pose_augment import set_network_input_wh, set_network_scale
 def train():
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
     parser.add_argument('--batch_size', type=str, default=10)
-    parser.add_argument('--not_continue_training', type=bool, default=True)
+    parser.add_argument('--continue_training', type=bool, default=False)
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
+    parser.add_argument('--train_vgg', type=bool, default=False)
     parser.add_argument('--annot_path_train', type=str,
                         default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/')
@@ -42,7 +43,7 @@ def train():
     parser.add_argument('--loss_func', type=str, default='l2')
     args = parser.parse_args()
 
-    if args.not_continue_training:
+    if not args.continue_training:
         start_time = time.localtime(time.time())
         checkpoint_path = args.checkpoint_path + ('%d-%d-%d-%d-%d-%d' % start_time[0:6])
         os.mkdir(checkpoint_path)
@@ -110,7 +111,10 @@ def train():
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
     learning_rate = tf.train.exponential_decay(1e-4, global_step, steps_per_echo, 0.5, staircase=True)
+    trainable_var_list = []
     trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
+    if args.train_vgg:
+        trainable_var_list = trainable_var_list + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19')
     with tf.name_scope('train'):
         train = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1e-8).minimize(loss=loss,
                                                                                            global_step=global_step,
@@ -141,9 +145,10 @@ def train():
     with tf.Session(config=config) as sess:
         writer = tf.summary.FileWriter(checkpoint_path, sess.graph)
         sess.run(tf.group(tf.global_variables_initializer()))
-        logger.info('restoring vgg weights...')
-        restorer.restore(sess, args.backbone_net_ckpt_path)
-        if not args.not_continue_training:
+        if args.backbone_net_ckpt_path is not None:
+            logger.info('restoring vgg weights from %s' % args.backbone_net_ckpt_path)
+            restorer.restore(sess, args.backbone_net_ckpt_path)
+        if args.continue_training:
             saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
             logger.info('restoring from checkpoint...')
         logger.info('start training...')
