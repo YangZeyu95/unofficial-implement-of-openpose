@@ -1,4 +1,8 @@
 # Unofficial-Implement-of-Openpose
+<p align="left">
+<img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/IMG_4030.GIF", width="720">
+</p>　　
+
 An easy implement for openpose using TensorFlow.
 
 Only basic python is used, so the code is easy to understand.
@@ -26,14 +30,16 @@ make sure have this structure:
 
 3. Specify the '--annot_path_train' and '--img_path_train' in train.py to your own 'COCO/annotations/' and 'COCO/images/'.
 4. run train.py `python train.py` and install requirements follow the error and run again.
-## Test
-Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
-`python run.py`  
-pretrained model will be uploaded soon.
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/loss2%20(1).svg", width="720">
 </p>　　
-
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/Screenshot%202018-12-12%20at%2010.21.55%20PM.png", width="720">
-</p>　
+</p>　　
+
+## Test
+Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
+`python run.py`  
+pretrained model will be uploaded soon.　　
+
+
