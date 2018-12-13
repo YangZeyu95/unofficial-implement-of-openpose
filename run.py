@@ -22,7 +22,7 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
-    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-7-16-12-50/')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-12-10-47-38/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--img_path', type=str, default='images/1.png')
     parser.add_argument('--run_model', type=str, default='webcam')
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # get net graph
     logger.info('initializing model...')
-    net = PafNet(inputs_x=vgg_outputs, use_bn=True)
+    net = PafNet(inputs_x=vgg_outputs, use_bn=args.use_bn)
     hm_pre, cpm_pre, added_layers_out = net.gen_net()
 
     hm_up = tf.image.resize_area(hm_pre[4], img_size)
@@ -69,28 +69,36 @@ if __name__ == '__main__':
         logger.info('restoring vgg weights...')
         restorer.restore(sess, args.backbone_net_ckpt_path)
         logger.info('restoring from checkpoint...')
-        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        # saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            cap = cv2.VideoCapture('http://admin:admin@192.168.1.55:8081')
-            # cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture('http://admin:admin@192.168.1.51:8081')
+            # cap = cv2.VideoCapture('images/1.mp4')
             _, image = cap.read()
             if image is None:
                 logger.error('Image can not be read')
                 sys.exit(-1)
-            size = [image.shape[1], image.shape[0]]
+            size = [image.shape[1]/5, image.shape[0]/5]
+            # size = [480, 640]
             h = int(480 * (image.shape[0] / image.shape[1]))
+            time_n = time.time()
             while True:
                 _, image = cap.read()
+                # image_d = cv2.resize(image, (640, 480))
                 img = np.array(cv2.resize(image, (h, 480)))
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
                 bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
                 image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
+                time_c = time.time() - time_n
+                print(time_c)
+                time_n = time.time()
                 cv2.imshow(' ', image)
                 cv2.waitKey(1)
+                time_o = time.time()
         else:
             image = common.read_imgfile(args.img_path)
             size = [image.shape[0], image.shape[1]]
