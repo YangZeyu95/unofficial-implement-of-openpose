@@ -28,7 +28,7 @@ make sure have this structure:
 　　-val2017/  
 　-annotations/    
 
-3. Specify the '--annot_path_train' and '--img_path_train' in train.py to your own 'COCO/annotations/' and 'COCO/images/'.
+3. Specify '--annot_path_train' and '--img_path_train' in train.py to your own 'COCO/annotations/' and 'COCO/images/'.
 4. run train.py `python train.py` and install requirements follow the error and run again.
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/loss2.svg", width="720">
@@ -38,7 +38,7 @@ make sure have this structure:
 </p>　　
 
 ## Test
-Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
+Specify --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
 `python run.py`  
 pretrained model on COCO 2017 is available here(Google driver is uploading) or 链接: https://pan.baidu.com/s/1bsPsoftgcdcIr4KwXu4Ujw 提取码: pn5f, this checkpoint includes fine-tuned vgg weights.　　
 
