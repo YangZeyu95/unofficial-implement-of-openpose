@@ -87,14 +87,14 @@ if __name__ == '__main__':
             if image is None:
                 logger.error('Image can not be read')
                 sys.exit(-1)
-            size = [image.shape[1]/3, image.shape[0]/3]
+            size = [image.shape[1], image.shape[0]]
             # size = [480, 640]
             h = int(360 * (image.shape[0] / image.shape[1]))
             time_n = time.time()
             while True:
                 _, image = cap.read()
                 # image_d = cv2.resize(image, (640, 480))
-                img = np.array(cv2.resize(image, (h, 360)))
+                img = np.array(cv2.resize(image, (h, 400)))
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
