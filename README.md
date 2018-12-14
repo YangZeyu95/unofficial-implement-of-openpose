@@ -40,6 +40,6 @@ make sure have this structure:
 ## Test
 Specify the --checkpoint_path and --img_path in run.py to your path. If you want use webcam, set --run_model webcam.   
 `python run.py`  
-pretrained model will be uploaded soon.　　
+pretrained model on COCO 2017 is available here(Google driver is uploading) or 链接: https://pan.baidu.com/s/1bsPsoftgcdcIr4KwXu4Ujw 提取码: pn5f, this checkpoint includes fine-tuned vgg net.　　
 
 
