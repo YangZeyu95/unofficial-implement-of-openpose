@@ -80,9 +80,9 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            # cap = cv2.VideoCapture('http://admin:admin@192.168.1.52:8081')
+            cap = cv2.VideoCapture('http://admin:admin@192.168.1.52:8081')
             # cap = cv2.VideoCapture('images/1.mp4')
-            cap = cv2.VideoCapture(0)
+            # cap = cv2.VideoCapture(0)
             _, image = cap.read()
             if image is None:
                 logger.error('Image can not be read')
@@ -100,8 +100,8 @@ if __name__ == '__main__':
                                                      feed_dict={raw_img: img, img_size: size})
                 bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
                 image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
-                time_c = time.time() - time_n
-                print(time_c)
+                fps = round(1 / (time.time() - time_n), 2)
+                image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
                 time_n = time.time()
                 cv2.imshow(' ', image)
                 cv2.waitKey(1)
