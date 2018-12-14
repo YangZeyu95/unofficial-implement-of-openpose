@@ -3,7 +3,7 @@
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/IMG_4037.GIF", width="720">
 </p>　　
 
-An easy implement for openpose using TensorFlow.
+An easy implement of openpose using TensorFlow.
 
 Only basic python is used, so the code is easy to understand.
 
