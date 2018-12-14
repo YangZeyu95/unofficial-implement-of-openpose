@@ -22,10 +22,11 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
-    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-12-10-47-38/')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-13-16-56-49/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--img_path', type=str, default='images/ski.jpg')
     parser.add_argument('--run_model', type=str, default='img')
+    parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--use_bn', type=bool, default=False)
     args = parser.parse_args()
 
@@ -57,7 +58,12 @@ if __name__ == '__main__':
                                  tf.zeros_like(gaussian_heatMat))
 
     logger.info('initialize saver...')
+    # trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
+    # trainable_var_list = []
     trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
+    if args.train_vgg:
+        trainable_var_list = trainable_var_list + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19')
+
     restorer = tf.train.Saver(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19'), name='vgg_restorer')
     saver = tf.train.Saver(trainable_var_list)
 
@@ -74,20 +80,21 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            cap = cv2.VideoCapture('http://admin:admin@192.168.1.51:8081')
+            # cap = cv2.VideoCapture('http://admin:admin@192.168.1.52:8081')
             # cap = cv2.VideoCapture('images/1.mp4')
+            cap = cv2.VideoCapture(0)
             _, image = cap.read()
             if image is None:
                 logger.error('Image can not be read')
                 sys.exit(-1)
-            size = [image.shape[1]/5, image.shape[0]/5]
+            size = [image.shape[1]/3, image.shape[0]/3]
             # size = [480, 640]
-            h = int(480 * (image.shape[0] / image.shape[1]))
+            h = int(360 * (image.shape[0] / image.shape[1]))
             time_n = time.time()
             while True:
                 _, image = cap.read()
                 # image_d = cv2.resize(image, (640, 480))
-                img = np.array(cv2.resize(image, (h, 480)))
+                img = np.array(cv2.resize(image, (h, 360)))
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
