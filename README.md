@@ -31,7 +31,7 @@ make sure have this structure:
 3. Specify the '--annot_path_train' and '--img_path_train' in train.py to your own 'COCO/annotations/' and 'COCO/images/'.
 4. run train.py `python train.py` and install requirements follow the error and run again.
 <p align="left">
-<img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/loss2%2.svg", width="720">
+<img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/loss2.svg", width="720">
 </p>　　
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/Screenshot%202018-12-12%20at%2010.21.55%20PM.png", width="720">
