@@ -76,25 +76,29 @@ if __name__ == '__main__':
         restorer.restore(sess, args.backbone_net_ckpt_path)
         logger.info('restoring from checkpoint...')
         saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
-        # saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
+        # saver.restore(sess, args.checkpoint_path + 'model-20000.ckpt')
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-            # cap = cv2.VideoCapture('http://admin:admin@192.168.1.52:8081')
-            # cap = cv2.VideoCapture('images/1.mp4')
-            cap = cv2.VideoCapture(0)
+
+            # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
+            cap = cv2.VideoCapture('images/2.flv')
+            # cap = cv2.VideoCapture(0)
             _, image = cap.read()
+            image = cv2.resize(image, (640, 400))
             if image is None:
                 logger.error('Image can not be read')
                 sys.exit(-1)
-            size = [image.shape[1], image.shape[0]]
+            size = [image.shape[0]/3, image.shape[1]/3]
             # size = [480, 640]
-            h = int(360 * (image.shape[0] / image.shape[1]))
+            h = int(360 * (image.shape[1] / image.shape[0]))
             time_n = time.time()
             while True:
                 _, image = cap.read()
-                # image_d = cv2.resize(image, (640, 480))
+                image = cv2.resize(image, (640, 400))
                 img = np.array(cv2.resize(image, (h, 360)))
+                cv2.imshow('raw', img)
+
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
