@@ -16,12 +16,12 @@ def train():
     parser.add_argument('--continue_training', type=bool, default=False)
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
-    parser.add_argument('--train_vgg', type=bool, default=False)
+    parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--annot_path_train', type=str,
-                        default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+                        default='/run/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/')
     parser.add_argument('--img_path_train', type=str,
-                        default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
+                        default='/run/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/')
     # parser.add_argument('--annot_path_val', type=str,
     #                     default='/run/user/1000/gvfs/smb-share:server=192.168.1.2,share=data/yzy/dataset/'
@@ -39,7 +39,7 @@ def train():
     parser.add_argument('--input-height', type=int, default=368)
     parser.add_argument('--img_path', type=str, default='images/ski.jpg')
     parser.add_argument('--max_echos', type=str, default=5)
-    parser.add_argument('--use_bn', type=bool, default=False)
+    parser.add_argument('--use_bn', type=bool, default=True)
     parser.add_argument('--loss_func', type=str, default='l2')
     args = parser.parse_args()
 
