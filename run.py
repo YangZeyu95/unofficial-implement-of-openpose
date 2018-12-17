@@ -80,6 +80,7 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
+
             # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
             cap = cv2.VideoCapture('images/2.flv')
             # cap = cv2.VideoCapture(0)
@@ -97,6 +98,7 @@ if __name__ == '__main__':
                 image = cv2.resize(image, (640, 400))
                 img = np.array(cv2.resize(image, (h, 360)))
                 cv2.imshow('raw', img)
+
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
