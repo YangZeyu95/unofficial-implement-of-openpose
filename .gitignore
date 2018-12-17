@@ -121,3 +121,5 @@ checkpoints
 .idea
 dataset/
 dataset
+result
+result/

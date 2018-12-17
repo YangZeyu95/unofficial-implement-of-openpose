@@ -28,6 +28,8 @@ if __name__ == '__main__':
     parser.add_argument('--run_model', type=str, default='img')
     parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--use_bn', type=bool, default=False)
+    parser.add_argument('--save_video', type=bool, default=False)
+
     args = parser.parse_args()
 
     checkpoint_path = args.checkpoint_path
@@ -48,8 +50,10 @@ if __name__ == '__main__':
     net = PafNet(inputs_x=vgg_outputs, use_bn=args.use_bn)
     hm_pre, cpm_pre, added_layers_out = net.gen_net()
 
-    hm_up = tf.image.resize_area(hm_pre[4], img_size)
-    cpm_up = tf.image.resize_area(cpm_pre[4], img_size)
+    hm_up = tf.image.resize_area(hm_pre[5], img_size)
+    cpm_up = tf.image.resize_area(cpm_pre[5], img_size)
+    # hm_up = hm_pre[5]
+    # cpm_up = cpm_pre[5]
     smoother = Smoother({'data': hm_up}, 25, 3.0)
     gaussian_heatMat = smoother.get_output()
 
@@ -66,7 +70,8 @@ if __name__ == '__main__':
 
     restorer = tf.train.Saver(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19'), name='vgg_restorer')
     saver = tf.train.Saver(trainable_var_list)
-
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    video_saver = cv2.VideoWriter('result/our.mp4', fourcc, 30.0, (1080, 608))
     logger.info('initialize session...')
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -80,23 +85,22 @@ if __name__ == '__main__':
         logger.info('initialization done')
 
         if args.run_model == 'webcam':
-
             # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
             cap = cv2.VideoCapture('images/2.flv')
             # cap = cv2.VideoCapture(0)
             _, image = cap.read()
-            image = cv2.resize(image, (640, 400))
+            image = cv2.resize(image, (1080, 608))
             if image is None:
                 logger.error('Image can not be read')
                 sys.exit(-1)
-            size = [image.shape[0]/3, image.shape[1]/3]
+            size = [image.shape[0]/4, image.shape[1]/4]
             # size = [480, 640]
-            h = int(360 * (image.shape[1] / image.shape[0]))
+            h = int(512 * (image.shape[1] / image.shape[0]))
             time_n = time.time()
             while True:
                 _, image = cap.read()
-                image = cv2.resize(image, (640, 400))
-                img = np.array(cv2.resize(image, (h, 360)))
+                image = cv2.resize(image, (1080, 608))
+                img = np.array(cv2.resize(image, (h, 512)))
                 cv2.imshow('raw', img)
 
                 img = img[np.newaxis, :]
@@ -108,8 +112,8 @@ if __name__ == '__main__':
                 image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
                 time_n = time.time()
                 cv2.imshow(' ', image)
+                video_saver.write(image)
                 cv2.waitKey(1)
-                time_o = time.time()
         else:
             image = common.read_imgfile(args.img_path)
             size = [image.shape[1], image.shape[0]]
