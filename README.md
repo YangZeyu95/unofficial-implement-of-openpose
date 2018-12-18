@@ -2,7 +2,8 @@
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/IMG_4063.GIF", width="720">
 </p>　　
-You can check the full result [here](https://youtu.be/v-CC0g7whTs) or [bilibili](https://www.bilibili.com/video/av38475550/)
+
+You can check the full result on [YouTube](https://youtu.be/v-CC0g7whTs) or [bilibili](https://www.bilibili.com/video/av38475550/)　　
 
 An easy implement of openpose using TensorFlow.
 
