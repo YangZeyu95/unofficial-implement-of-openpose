@@ -44,6 +44,6 @@ Specify --checkpoint_path in run.py to your path.　　
 + running on video `python run.py --video images/video.avi`　　
 + running on image`python run.py --image images/ski.jpg`　　
 
-pretrained model on COCO 2017 is available here(Google driver is being uploaded) or 链接: https://pan.baidu.com/s/1FX-_YJQFwPRd0ECvVDli6Q 提取码: xwnk, this checkpoint includes fine-tuned vgg weights.　　
+pretrained model on COCO 2017 is available [here](https://drive.google.com/drive/folders/1wQp6tU3xOyO4FF54YZShEmLuwsGLVAQA?usp=sharing) or 链接: https://pan.baidu.com/s/1FX-_YJQFwPRd0ECvVDli6Q 提取码: xwnk, this checkpoint includes fine-tuned vgg weights.　　
 
 
