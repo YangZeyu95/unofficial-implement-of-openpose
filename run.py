@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('--video', type=str, default=None)
     parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--use_bn', type=bool, default=False)
-    parser.add_argument('--save_video', type=bool, default=False)
+    parser.add_argument('--save_video', type=str, default='result/our.mp4')
 
     args = parser.parse_args()
 
@@ -95,15 +95,17 @@ if __name__ == '__main__':
             fps = cap.get(cv2.CAP_PROP_FPS)
             ori_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             ori_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-            video_saver = cv2.VideoWriter('result/our.mp4', fourcc, fps, (ori_w, ori_h))
+            if args.save_video is not None:
+                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                video_saver = cv2.VideoWriter('result/our.mp4', fourcc, fps, (ori_w, ori_h))
+                logger.info('record vide to %s' % args.save_video)
             logger.info('fps@%f' % fps)
-            size = [int(654 * (ori_h / ori_w)), 654]
-            h = int(654 * (ori_h / ori_w))
+            size = [int(200 * (ori_h / ori_w)), 200]
+            h = int(200 * (ori_h / ori_w))
             time_n = time.time()
             while True:
                 _, image = cap.read()
-                img = np.array(cv2.resize(image, (654, h)))
+                img = np.array(cv2.resize(image, (200, h)))
                 cv2.imshow('raw', img)
                 img_corner = np.array(cv2.resize(image, (360, int(360*(ori_h/ori_w)))))
                 img = img[np.newaxis, :]
@@ -114,9 +116,11 @@ if __name__ == '__main__':
                 fps = round(1 / (time.time() - time_n), 2)
                 image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
                 time_n = time.time()
-                image[27:img_corner.shape[0]+17, :img_corner.shape[1]] = img_corner[:-10, :]
+                if args.video is not None:
+                    image[27:img_corner.shape[0]+17, :img_corner.shape[1]] = img_corner[:-10, :]
                 cv2.imshow(' ', image)
-                video_saver.write(image)
+                if args.save_video is not None:
+                    video_saver.write(image)
                 cv2.waitKey(1)
         else:
             image = common.read_imgfile(args.image)
