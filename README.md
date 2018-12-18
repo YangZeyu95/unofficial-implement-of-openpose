@@ -40,7 +40,7 @@ make sure have this structure:
 </p>　　
 
 ## Test
-Specify --checkpoint_path in run.py to your path.　　
+Specify --checkpoint_path to the folder includes checkpoint files in run.py.　　
 
 + running on webcam `python run.py`　　
 + running on video `python run.py --video images/video.avi`　　
