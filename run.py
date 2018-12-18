@@ -79,8 +79,8 @@ if __name__ == '__main__':
         logger.info('restoring vgg weights...')
         restorer.restore(sess, args.backbone_net_ckpt_path)
         logger.info('restoring from checkpoint...')
-        # saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
-        saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
+        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        # saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
         logger.info('initialization done')
         if args.image is None:
             if args.video is not None:
