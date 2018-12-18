@@ -38,13 +38,12 @@ make sure have this structure:
 </p>　　
 
 ## Test
-Specify --checkpoint_path in run.py to your path. Set '--run_model webcam' to use webcam.
--running on webcam　　 
-`python run.py`  
--running on video　　
-'python run.py --video images/video.avi'　　
--running on image　　
-'python run.py --image images/ski.jpg'　　
+Specify --checkpoint_path in run.py to your path.　　
+
++ running on webcam `python run.py`　　
++ running on video `python run.py --video images/video.avi`　　
++ running on image`python run.py --image images/ski.jpg`　　
+
 pretrained model on COCO 2017 is available here(Google driver is being uploaded) or 链接: https://pan.baidu.com/s/1FX-_YJQFwPRd0ECvVDli6Q 提取码: xwnk, this checkpoint includes fine-tuned vgg weights.　　
 
 
