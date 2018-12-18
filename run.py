@@ -24,8 +24,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Training codes for Openpose using Tensorflow')
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/2018-12-13-16-56-49/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
-    parser.add_argument('--img_path', type=str, default='images/ski.jpg')
-    parser.add_argument('--run_model', type=str, default='img')
+    parser.add_argument('--image', type=str, default=None)
+    # parser.add_argument('--run_model', type=str, default='img')
+    parser.add_argument('--video', type=str, default=None)
     parser.add_argument('--train_vgg', type=bool, default=True)
     parser.add_argument('--use_bn', type=bool, default=False)
     parser.add_argument('--save_video', type=bool, default=False)
@@ -70,8 +71,6 @@ if __name__ == '__main__':
 
     restorer = tf.train.Saver(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19'), name='vgg_restorer')
     saver = tf.train.Saver(trainable_var_list)
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    video_saver = cv2.VideoWriter('result/our.mp4', fourcc, 30.0, (1080, 608))
     logger.info('initialize session...')
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -80,29 +79,33 @@ if __name__ == '__main__':
         logger.info('restoring vgg weights...')
         restorer.restore(sess, args.backbone_net_ckpt_path)
         logger.info('restoring from checkpoint...')
-        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
-        # saver.restore(sess, args.checkpoint_path + 'model-20000.ckpt')
+        # saver.restore(sess, tf.train.latest_checkpoint(checkpoint_dir=checkpoint_path))
+        saver.restore(sess, args.checkpoint_path + 'model-55000.ckpt')
         logger.info('initialization done')
-
-        if args.run_model == 'webcam':
-            # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
-            cap = cv2.VideoCapture('images/2.flv')
-            # cap = cv2.VideoCapture(0)
+        if args.image is None:
+            if args.video is not None:
+                cap = cv2.VideoCapture(args.video)
+            else:
+                cap = cv2.VideoCapture(0)
+                # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
             _, image = cap.read()
-            image = cv2.resize(image, (1080, 608))
             if image is None:
-                logger.error('Image can not be read')
+                logger.error("Can't read video")
                 sys.exit(-1)
-            size = [image.shape[0]/4, image.shape[1]/4]
-            # size = [480, 640]
-            h = int(512 * (image.shape[1] / image.shape[0]))
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            ori_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            ori_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+            video_saver = cv2.VideoWriter('result/our.mp4', fourcc, fps, (ori_w, ori_h))
+            logger.info('fps@%f' % fps)
+            size = [int(654 * (ori_h / ori_w)), 654]
+            h = int(654 * (ori_h / ori_w))
             time_n = time.time()
             while True:
                 _, image = cap.read()
-                image = cv2.resize(image, (1080, 608))
-                img = np.array(cv2.resize(image, (h, 512)))
+                img = np.array(cv2.resize(image, (654, h)))
                 cv2.imshow('raw', img)
-
+                img_corner = np.array(cv2.resize(image, (360, int(360*(ori_h/ori_w)))))
                 img = img[np.newaxis, :]
                 peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up],
                                                      feed_dict={raw_img: img, img_size: size})
@@ -111,14 +114,15 @@ if __name__ == '__main__':
                 fps = round(1 / (time.time() - time_n), 2)
                 image = cv2.putText(image, str(fps)+'fps', (10, 15), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255, 255, 255))
                 time_n = time.time()
+                image[27:img_corner.shape[0]+17, :img_corner.shape[1]] = img_corner[:-10, :]
                 cv2.imshow(' ', image)
                 video_saver.write(image)
                 cv2.waitKey(1)
         else:
-            image = common.read_imgfile(args.img_path)
+            image = common.read_imgfile(args.image)
             size = [image.shape[1], image.shape[0]]
             if image is None:
-                logger.error('Image can not be read, path=%s' % args.img_path)
+                logger.error('Image can not be read, path=%s' % args.image)
                 sys.exit(-1)
             img = np.array(cv2.resize(image, (240, 320)))
             img = img[np.newaxis, :]
