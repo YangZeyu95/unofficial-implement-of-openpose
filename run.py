@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 cap = cv2.VideoCapture(args.video)
             else:
                 cap = cv2.VideoCapture(0)
-                # cap = cv2.VideoCapture('http://admin:admin@192.168.1.50:8081')
+                cap = cv2.VideoCapture('http://admin:admin@192.168.1.52:8081')
             _, image = cap.read()
             if image is None:
                 logger.error("Can't read video")
@@ -124,13 +124,16 @@ if __name__ == '__main__':
                 cv2.waitKey(1)
         else:
             image = common.read_imgfile(args.image)
-            size = [image.shape[1], image.shape[0]]
+            size = [image.shape[0], image.shape[1]]
             if image is None:
                 logger.error('Image can not be read, path=%s' % args.image)
-                sys.exit(-1)
-            img = np.array(cv2.resize(image, (240, 320)))
+                sys.exit(-1)        
+            h = int(654 * (size[0] / size[1]))
+            img = np.array(cv2.resize(image, (654, h)))
+            cv2.imshow('ini', img)
             img = img[np.newaxis, :]
             peaks, heatmap, vectormap = sess.run([tensor_peaks, hm_up, cpm_up], feed_dict={raw_img: img, img_size: size})
+            cv2.imshow('in', vectormap[0, :, :, 0])
             bodys = PoseEstimator.estimate_paf(peaks[0], heatmap[0], vectormap[0])
             image = TfPoseEstimator.draw_humans(image, bodys, imgcopy=False)
             cv2.imshow(' ', image)
