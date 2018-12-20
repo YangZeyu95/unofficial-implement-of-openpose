@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from tqdm import tqdm
 import argparse
 import tensorflow as tf
 from tensorflow.contrib import slim
@@ -17,10 +18,10 @@ def train():
     parser.add_argument('--checkpoint_path', type=str, default='checkpoints/train/')
     parser.add_argument('--backbone_net_ckpt_path', type=str, default='checkpoints/vgg/vgg_19.ckpt')
     parser.add_argument('--train_vgg', type=bool, default=True)
-    parser.add_argument('--annot_path_train', type=str,
+    parser.add_argument('--annot_path', type=str,
                         default='/run/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/annotations/')
-    parser.add_argument('--img_path_train', type=str,
+    parser.add_argument('--img_path', type=str,
                         default='/run/user/1000/gvfs/smb-share:server=server,share=data/yzy/dataset/'
                                 'Realtime_Multi-Person_Pose_Estimation-master/training/dataset/COCO/images/')
     # parser.add_argument('--annot_path_val', type=str,
@@ -37,9 +38,8 @@ def train():
     parser.add_argument('--paf_channels', type=str, default=38)
     parser.add_argument('--input-width', type=int, default=368)
     parser.add_argument('--input-height', type=int, default=368)
-    parser.add_argument('--img_path', type=str, default='images/ski.jpg')
     parser.add_argument('--max_echos', type=str, default=5)
-    parser.add_argument('--use_bn', type=bool, default=True)
+    parser.add_argument('--use_bn', type=bool, default=False)
     parser.add_argument('--loss_func', type=str, default='l2')
     args = parser.parse_args()
 
@@ -77,12 +77,16 @@ def train():
     set_network_input_wh(args.input_width, args.input_height)
     scale = 8
     set_network_scale(scale)
-    df = get_dataflow_batch(args.annot_path_train, True, args.batch_size, img_path=args.img_path_train)
+    df = get_dataflow_batch(args.annot_path, True, args.batch_size, img_path=args.img_path)
     steps_per_echo = df.size()
     enqueuer = DataFlowToQueue(df, [raw_img, hm, paf], queue_size=100)
     q_inp, q_heat, q_vect = enqueuer.dequeue()
     q_inp_split, q_heat_split, q_vect_split = tf.split(q_inp, 1), tf.split(q_heat, 1), tf.split(q_vect, 1)
     img_normalized = q_inp_split[0] / 255 - 0.5  # [-0.5, 0.5]
+
+    df_valid = get_dataflow_batch(args.annot_path, False, args.batch_size, img_path=args.img_path)
+    df_valid.reset_state()
+    validation_cache = []
 
     logger.info('initializing model...')
     # define vgg19
@@ -111,7 +115,6 @@ def train():
 
     global_step = tf.Variable(0, name='global_step', trainable=False)
     learning_rate = tf.train.exponential_decay(1e-4, global_step, steps_per_echo, 0.5, staircase=True)
-    trainable_var_list = []
     trainable_var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='openpose_layers')
     if args.train_vgg:
         trainable_var_list = trainable_var_list + tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='vgg_19')
@@ -156,17 +159,39 @@ def train():
         enqueuer.set_coordinator(coord)
         enqueuer.start()
         while True:
-            total_loss, _, gs_num = sess.run([loss, train, global_step])
-            echo = gs_num / steps_per_echo
-            if gs_num % args.save_summary_frequency == 0:
-                total_loss, gs_num, summary, lr = sess.run([loss, global_step, merged, learning_rate])
-                writer.add_summary(summary, gs_num)
-                logger.info('echos=%f, setp=%d, total_loss=%f, lr=%f' % (echo, gs_num, total_loss, lr))
-            if gs_num % args.save_checkpoint_frequency == 0:
-                saver.save(sess, save_path=checkpoint_path + '/' + 'model-%d.ckpt' % gs_num)
-                logger.info('saving checkpoint to ' + checkpoint_path + '/' + 'model-%d.ckpt' % gs_num)
-            if echo >= args.max_echos:
-                break
+            best_checkpoint = float('inf')
+            for _ in tqdm(range(steps_per_echo),):
+                total_loss, _, gs_num = sess.run([loss, train, global_step])
+                echo = gs_num / steps_per_echo
+
+                if gs_num % args.save_summary_frequency == 0:
+                    total_loss, gs_num, summary, lr = sess.run([loss, global_step, merged, learning_rate])
+                    writer.add_summary(summary, gs_num)
+                    logger.info('echos=%f, setp=%d, total_loss=%f, lr=%f' % (echo, gs_num, total_loss, lr))
+
+                if gs_num % args.save_checkpoint_frequency == 0:
+                    valid_loss = 0
+                    if len(validation_cache) == 0:
+                        for images_test, heatmaps, vectmaps in tqdm(df_valid.get_data()):
+                            validation_cache.append((images_test, heatmaps, vectmaps))
+                        df_valid.reset_state()
+                        del df_valid
+                        df_valid = None
+
+                    for images_test, heatmaps, vectmaps in validation_cache:
+                        valid_loss += sess.run(loss, feed_dict={q_inp: images_test, q_vect: vectmaps, q_heat: heatmaps})
+
+                    if valid_loss / len(validation_cache) <= best_checkpoint:
+                        best_checkpoint = valid_loss / len(validation_cache)
+                        saver.save(sess, save_path=checkpoint_path + '/' + 'model', global_step=gs_num)
+                        logger.info('best_checkpoint = %f, saving checkpoint to ' % best_checkpoint + checkpoint_path + '/' + 'model-%d' % gs_num)
+
+                    else:
+                        logger.info('loss = %f drop' % valid_loss / len(validation_cache))
+
+                if echo >= args.max_echos:
+                    sess.close()
+                    return 0
 
 
 if __name__ == '__main__':
