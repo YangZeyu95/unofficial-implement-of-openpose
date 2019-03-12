@@ -35,9 +35,7 @@ make sure have this structure:
 <p align="left">
 <img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/loss2.svg", width="720">
 </p>　　
-<p align="left">
-<img src="https://github.com/YangZeyu95/unofficial-implement-of-openpose/blob/master/readme/Screenshot%202018-12-12%20at%2010.21.55%20PM.png", width="720">
-</p>　　
+　
 
 ## Test
 Specify --checkpoint_path to the folder includes checkpoint files in run.py.　　
