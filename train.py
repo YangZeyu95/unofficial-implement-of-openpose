@@ -187,7 +187,7 @@ def train():
                         logger.info('best_checkpoint = %f, saving checkpoint to ' % best_checkpoint + checkpoint_path + '/' + 'model-%d' % gs_num)
 
                     else:
-                        logger.info('loss = %f drop' % valid_loss / len(validation_cache))
+                        logger.info('loss = %f drop' % (valid_loss / len(validation_cache)))
 
                 if echo >= args.max_echos:
                     sess.close()
