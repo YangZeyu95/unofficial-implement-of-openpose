@@ -21,7 +21,7 @@ Python 3.6　　
 </p>　
 
 ## Training
-1. Download vgg19 weights file [here](http://download.tensorflow.org/models/vgg_19_2016_08_28.tar.gz) or 链接: https://pan.baidu.com/s/1ZxWKVPe4hrEhDxOpjLiUKA 提取码: widj and uzip to 'checkpoints/vgg/' (please create the path yourself).
+1. Download vgg19 weights file [here](http://download.tensorflow.org/models/vgg_19_2016_08_28.tar.gz) or 链接: https://pan.baidu.com/s/1t6iouKeDZBZRRg4BXsv5GA 提取码: 4k1w and uzip to 'checkpoints/vgg/' (please create the path yourself).
 2. Download COCO2017: 2017 Train images, 2017 Val images and 2017 Train/Val annotations [here](http://cocodataset.org/#download).  
 make sure have this structure:  
 -COCO/  
@@ -44,6 +44,6 @@ Specify --checkpoint_path to the folder includes checkpoint files in run.py.　�
 + running on video `python run.py --video images/video.avi`　　
 + running on image`python run.py --image images/ski.jpg`　　
 
-pretrained model on COCO 2017 is available [here](https://drive.google.com/drive/folders/1wQp6tU3xOyO4FF54YZShEmLuwsGLVAQA?usp=sharing) or 链接: https://pan.baidu.com/s/1FX-_YJQFwPRd0ECvVDli6Q 提取码: xwnk, this checkpoint includes fine-tuned vgg weights.　　
+pretrained model on COCO 2017 is available [here](https://drive.google.com/drive/folders/1wQp6tU3xOyO4FF54YZShEmLuwsGLVAQA?usp=sharing) or 链接: https://pan.baidu.com/s/1jcwRsOuEaveZRBU50lP_cQ 提取码: mqkr, this checkpoint includes fine-tuned vgg weights.　　
 
 
