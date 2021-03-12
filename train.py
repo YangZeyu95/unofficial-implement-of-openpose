@@ -170,24 +170,24 @@ def train():
                     logger.info('echos=%f, setp=%d, total_loss=%f, lr=%f' % (echo, gs_num, total_loss, lr))
 
                 if gs_num % args.save_checkpoint_frequency == 0:
-                    valid_loss = 0
-                    if len(validation_cache) == 0:
-                        for images_test, heatmaps, vectmaps in tqdm(df_valid.get_data()):
-                            validation_cache.append((images_test, heatmaps, vectmaps))
-                        df_valid.reset_state()
-                        del df_valid
-                        df_valid = None
+#                     valid_loss = 0
+#                     if len(validation_cache) == 0:
+#                         for images_test, heatmaps, vectmaps in tqdm(df_valid.get_data()):
+#                             validation_cache.append((images_test, heatmaps, vectmaps))
+#                         df_valid.reset_state()
+#                         del df_valid
+#                         df_valid = None
 
-                    for images_test, heatmaps, vectmaps in validation_cache:
-                        valid_loss += sess.run(loss, feed_dict={q_inp: images_test, q_vect: vectmaps, q_heat: heatmaps})
+#                     for images_test, heatmaps, vectmaps in validation_cache:
+#                         valid_loss += sess.run(loss, feed_dict={q_inp: images_test, q_vect: vectmaps, q_heat: heatmaps})
 
-                    if valid_loss / len(validation_cache) <= best_checkpoint:
-                        best_checkpoint = valid_loss / len(validation_cache)
-                        saver.save(sess, save_path=checkpoint_path + '/' + 'model', global_step=gs_num)
-                        logger.info('best_checkpoint = %f, saving checkpoint to ' % best_checkpoint + checkpoint_path + '/' + 'model-%d' % gs_num)
+#                     if valid_loss / len(validation_cache) <= best_checkpoint:
+#                         best_checkpoint = valid_loss / len(validation_cache)
+                     saver.save(sess, save_path=checkpoint_path + '/' + 'model', global_step=gs_num)
+#                         logger.info('best_checkpoint = %f, saving checkpoint to ' % best_checkpoint + checkpoint_path + '/' + 'model-%d' % gs_num)
 
-                    else:
-                        logger.info('loss = %f drop' % (valid_loss / len(validation_cache)))
+#                     else:
+#                         logger.info('loss = %f drop' % (valid_loss / len(validation_cache)))
 
                 if echo >= args.max_echos:
                     sess.close()
